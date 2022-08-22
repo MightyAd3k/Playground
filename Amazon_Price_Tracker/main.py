@@ -1,7 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
+import smtplib
 import lxml
 
+MY_EMAIL = "adek.konto.testowe@gmail.com"
+MY_PASSWORD = "bjtbogzysexemnvk"
 
 ACCEPT_ENCODING = "gzip, deflate"
 ACCEPT_LANGUAGE = "pl,en-US;q=0.7,en;q=0.3"
@@ -24,5 +27,24 @@ item_page = response.text
 
 soup = BeautifulSoup(item_page, "lxml")
 amazon_item_tag = soup.find(name="span", class_="a-offscreen")
-#print(amazon_item_tag.getText())
-item_price = float(amazon_item_tag.getText())
+item_price = amazon_item_tag.getText().split('$')[1].replace(',', '')
+#float_item_price = float(item_price)
+float_item_price = 536.00
+
+amazon_item_name = soup.find(name="span", id="productTitle")
+product_name = amazon_item_name.getText()
+
+#--------------------- LET ME KNOW WHEN TO BUY ---------------------#
+
+target_price = float(1300.00)
+
+if float_item_price <= target_price:
+
+    with smtplib.SMTP("smtp.gmail.com") as connection:
+        connection.starttls()
+        connection.login(user=MY_EMAIL, password=MY_PASSWORD)
+        connection.sendmail(
+            from_addr=MY_EMAIL,
+            to_addrs="adriandrewniak19@gmail.com",
+            msg = f"Subject:Discount time!\n\nYou can finally buy {product_name}\nLink for that product {item_url}\nActual price is: {item_price}."
+        )
